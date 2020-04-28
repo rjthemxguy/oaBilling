@@ -605,17 +605,18 @@ class claimClass:
 
             if claim["EMG"] == "TRIG2":
                 labCount += 1
+                TRIGclaim = claim
 
             if labCount == 3:
                 claimList.remove(removeCHOL)
                 claimList.remove(removeHDL)
 
-                claim["EMG"] = "LP"
-                claim["CPT"] = "80061"
+                TRIGclaim["EMG"] = "LP"
+                TRIGclaim["CPT"] = "80061"
 
-                CPTPrice = self.queryCode(claim["EMG"])
+                CPTPrice = self.queryCode("LP")
 
-                claim["Price"] = CPTPrice["Price"]
+                TRIGclaim["Price"] = CPTPrice["Price"]
 
                 break
 
