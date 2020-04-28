@@ -561,11 +561,32 @@ class claimClass:
 
     def checkForLP2lab(self,claimList):
 
+        labcount = 0
+
         for lp2_claim in claimList:
+
             if "LP" in lp2_claim.values():
-                print("FOUND IT")
+                labcount += 1
+                LPClaim = lp2_claim
 
+            if "LDLD" in lp2_claim.values():
+                labcount += 1
+                LDLDClaim = lp2_claim
 
+            if labcount == 2:
+                break
+
+        dict_LPprice = self.queryCode("LP")
+        dict_LDLDprice = self.queryCode("LDLD")
+
+        LPprice = dict_LPprice["Price"]
+        LDLDprice = dict_LDLDprice["Price"]
+
+        print(LPprice)
+
+        claimList.remove(LPClaim)
+        LDLDClaim["EMG"] = "LP2"
+        LDLDClaim["Price"] = LPprice + LDLDprice
 
 
     def checkForLPLab(self, claimList):
