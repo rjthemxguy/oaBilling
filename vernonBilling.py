@@ -574,19 +574,18 @@ class claimClass:
                 LDLDClaim = lp2_claim
 
             if labcount == 2:
+
+                dict_LPprice = self.queryCode("LP")
+                dict_LDLDprice = self.queryCode("LDLD")
+
+                LPprice = dict_LPprice["Price"]
+                LDLDprice = dict_LDLDprice["Price"]
+
+
+                claimList.remove(LPClaim)
+                LDLDClaim["EMG"] = "LP2"
+                LDLDClaim["Price"] = LPprice + LDLDprice
                 break
-
-        dict_LPprice = self.queryCode("LP")
-        dict_LDLDprice = self.queryCode("LDLD")
-
-        LPprice = dict_LPprice["Price"]
-        LDLDprice = dict_LDLDprice["Price"]
-
-        print(LPprice)
-
-        claimList.remove(LPClaim)
-        LDLDClaim["EMG"] = "LP2"
-        LDLDClaim["Price"] = LPprice + LDLDprice
 
 
     def checkForLPLab(self, claimList):
