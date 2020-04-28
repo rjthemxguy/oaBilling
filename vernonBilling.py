@@ -559,6 +559,9 @@ class claimClass:
             claim["CPT"] = CPTPrice["CPT"]
             claim["Price"] = CPTPrice["Price"]
 
+    def doDiagCodes(self,claimList):
+
+
     def checkForLP2lab(self,claimList):
 
         labcount = 0
@@ -628,6 +631,8 @@ class claimClass:
         self.checkForLPLab(claimList)
 
         self.checkForLP2lab(claimList)
+
+        self.doDiagCodes(claimList)
 
         return claimList
 
