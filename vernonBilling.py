@@ -438,6 +438,7 @@ class claimClass:
                 "ToDateOfService": self.rowData.ToDateOfService,
                 "CPT": self.rowData.CPT1,
                 "EMG": self.rowData.EMG,
+                "DiagPointer": "",
                 "Price": "",
                 "ReferringPhysicianID": self.rowData.ReferringPhysicianID,
                 "Session": self.rowData.Session
@@ -462,7 +463,6 @@ class claimClass:
 
                 self.totalOfClaimsForClientAmount = self.totalOfClaimsForClient(parsedClaims)
 
-
                 self.writeSummaryClaimHeader(parsedClaims[0])
                 self.writeTestBlocks(parsedClaims)
 
@@ -475,14 +475,11 @@ class claimClass:
         blockIndex = 1
         blocksWritten = 0
 
-
         # loop through claims
         for claim in claims:
 
             if blockIndex == 1:
                 self.writeClaimHeader(claim)
-
-
 
             self.writeTestBlock(claim, blockIndex, lineCount)
             blocksWritten += 1
@@ -507,13 +504,28 @@ class claimClass:
         self.writeClaimTotal()
         self.incrementIndex()
 
-
         self.summaryFile = open(summaryPath + '/summary.txt', 'a')
         self.summaryFile.write("\n\t\t\t" + "Total for this claim: ")
         self.summaryFile.write(str(round(self.totalOfClaimsForClientAmount, 2)))
         self.summaryFile.write("\n")
         self.summaryFile.write("______________________________________________________________________________________")
         self.summaryFile.close()
+
+    def getDiagCode(self, EMGcode):
+
+        # open database
+        con = None
+        con = lite.connect('db/vernon.db')
+        cur = con.cursor()
+
+        cur.execute("SELECT diag FROM codes WHERE code=?", (EMGcode,))
+        row = cur.fetchone()
+
+        if row != None:
+            return row[0]
+
+        else:
+            print("NO ENTRY FOR CODE: " + EMGcode)
 
     def queryCode(self, EMGcode):
 
@@ -559,10 +571,28 @@ class claimClass:
             claim["CPT"] = CPTPrice["CPT"]
             claim["Price"] = CPTPrice["Price"]
 
-    def doDiagCodes(self,claimList):
+    def doDiagCodes(self, claimList):
+
+        pointerIndex = 0
+        diagPointers = ["A", "B", "C", "D", "E", "F"]
+        diagCodeList = []
+
+        for diag_claim in claimList:
+
+            if self.getDiagCode(diag_claim["EMG"]) in diagCodeList:
+                print("")
+
+            else:
+                diagCodeList.append(self.getDiagCode(diag_claim["EMG"]))
+                diag_claim["DiagPointer"] = diagPointers[pointerIndex]
 
 
-    def checkForLP2lab(self,claimList):
+
+
+
+
+
+    def checkForLP2lab(self, claimList):
 
         labcount = 0
 
@@ -577,19 +607,16 @@ class claimClass:
                 LDLDClaim = lp2_claim
 
             if labcount == 2:
-
                 dict_LPprice = self.queryCode("LP")
                 dict_LDLDprice = self.queryCode("LDLD")
 
                 LPprice = dict_LPprice["Price"]
                 LDLDprice = dict_LDLDprice["Price"]
 
-
                 claimList.remove(LPClaim)
                 LDLDClaim["EMG"] = "LP2"
                 LDLDClaim["Price"] = LPprice + LDLDprice
                 break
-
 
     def checkForLPLab(self, claimList):
 
@@ -624,7 +651,6 @@ class claimClass:
                 break
 
     def parseClaims(self, claimList):
-
 
         self.getTableData(claimList)
 
