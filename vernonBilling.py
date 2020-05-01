@@ -14,7 +14,7 @@ summaryPath = "summary"
 outputPath = "output"
 inputPath = "input/"
 
-dataFile = "diagTest.csv"
+dataFile = "claims1.csv"
 
 # desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
 
@@ -91,11 +91,13 @@ class dataRowClass:
                         row[32] = row[32] + row[33]
                         del row[33]
 
-                    if "SUITE" in row[337]:
-                        row[336] = row[336] + row[337]
-                        row[337] = ""
+                    if "SUITE" in row[345]:
+                        row[344] = row[344] + row[345]
+                        row[345] = ""
 
-                        del row[337]
+                        del row[345]
+
+                    print(row[14])
 
                     writer.writerow(row)
 
@@ -148,7 +150,7 @@ class dataRowClass:
         self.PatientStreetAddress = isNan(self.dataset.iloc[self.index, 26])
         self.PatientCity = isNan(self.dataset.iloc[self.index, 27])
         self.PatientState = isNan(self.dataset.iloc[self.index, 28])
-        self.PatientZip = int(self.dataset.iloc[self.index, 29])
+        self.PatientZip = (self.dataset.iloc[self.index, 29])
         self.PatientPhone = isNan(self.dataset.iloc[self.index, 30])
         self.PatientSignatureDate = self.dataset.iloc[self.index, 61]
         self.ReferringPhysician = self.dataset.iloc[self.index, 75] + " " + self.dataset.iloc[self.index, 76]
@@ -172,7 +174,7 @@ class dataRowClass:
         self.EMG = self.dataset.iloc[self.index, 105]
         self.DiagCode = self.dataset.iloc[self.index, 107]
         self.ReferringPhysicianID = self.dataset.iloc[self.index, 116]
-        self.Session = self.dataset.iloc[self.index, 354]
+        self.Session = self.dataset.iloc[self.index, 362]
 
     def setGender(self):
         if self.Gender == "F":
@@ -213,6 +215,16 @@ class claimClass:
         self.noEMGList = []
         self.claimMarkCount = 0
 
+    def parseSummary(self):
+
+        with open("summary/summary.txt", 'r') as file:
+            summarydata = file.read()
+
+            summarydata = summarydata.replace('nan', '')
+
+        with open('summary/summaryFinal.csv', 'w') as file:
+            file.write(summarydata)
+
     def openSummaryFileAppend(self):
 
         # Open summary file to append
@@ -227,14 +239,19 @@ class claimClass:
         self.summaryFile = open(summaryPath + '/summary.txt', 'w')
         self.summaryFile.write("-- CLAIM SUMMARY --\n\n")
 
-        self.summaryFile.write("Accession #".ljust(15, " "))
+        self.summaryFile.write("Accession #".ljust(19, " "))
         self.summaryFile.write("PaitID".ljust(8, " "))
         self.summaryFile.write("PaitLast".ljust(15, " "))
         self.summaryFile.write("PaitFirst".ljust(15, " "))
-        self.summaryFile.write("Refer Phy".ljust(20, " "))
+        self.summaryFile.write("DOB".ljust(15, " "))
+        self.summaryFile.write("M/F".ljust(8," "))
+        self.summaryFile.write("Refer Phy".ljust(30, " "))
+        self.summaryFile.write("Refer Phy NPI".ljust(20, " "))
         self.summaryFile.write("Insurance".ljust(30, " "))
+
         self.summaryFile.write(
-            "\n___________________________________________________________________________________________________")
+            "\n________________________________________________________________________________________________________________________________________")
+
         self.summaryFile.close()
 
     def writeSummaryClaimHeader(self, claim):
@@ -255,22 +272,60 @@ class claimClass:
         patientFirst = claim["PatientFirst"]
         self.summaryFile.write(str(patientFirst).ljust(15, " "))
 
+        self.summaryFile.write(str(claim["PatientDOB"].ljust(15, " ")))
+
+        self.summaryFile.write(str(claim["Gender"].ljust(8, " ")))
+
         ReferringPhysician = claim["ReferringPhysician"] + " " + claim["ReferPhysQualifier"]
-        self.summaryFile.write(str(ReferringPhysician).ljust(20, " "))
+        self.summaryFile.write(str(ReferringPhysician).ljust(30, " "))
+
+        NPI = claim["Refer_Phys_NPI"]
+        self.summaryFile.write(str(NPI).ljust(20, " "))
 
         insurance = claim["InsurancePlanName"]
         self.summaryFile.write(insurance.ljust(30, " "))
+        self.summaryFile.write("\n")
+        self.summaryFile.write(" ".ljust(28," ") + str(claim["PatientStreetAddress"].ljust(25," ")))
+        self.summaryFile.write(" ".ljust(79," ") + str(claim["InsuranceStreetAddr"]))
+        self.summaryFile.write("\n")
+        self.summaryFile.write(" ".ljust(28, " ") + str(claim["PatientCity"].ljust(16," ")))
+        self.summaryFile.write(" " + str(claim["PatientState"].ljust(8," ")))
+        self.summaryFile.write(" " + str(claim["PatientZip"])[0:5].ljust(12," "))
+        self.summaryFile.write(" ".ljust(66, " ") + str(claim["InsuranceCity"]))
+        self.summaryFile.write(" " + str(claim["InsuranceState"]))
+        self.summaryFile.write(" " + str(claim["InsuranceZip"])[0:5])
+
+        self.summaryFile.write("\n\n")
+
+        self.summaryFile.write("\t" + "Group ID: " + str(claim["PlanGroupHealthPlan"]))
+        self.summaryFile.write("\n")
+        self.summaryFile.write("\t")
+        self.summaryFile.write("Diag Codes: ")
+        self.summaryFile.write(isNan(str(claim["DiagCode1"])).ljust(8, " "))
+        self.summaryFile.write(str(claim["DiagCode2"]).ljust(8, " "))
+        self.summaryFile.write(str(claim["DiagCode3"]).ljust(8, " "))
+        self.summaryFile.write(str(claim["DiagCode4"]).ljust(8, " "))
+        self.summaryFile.write(str(claim["DiagCode5"]).ljust(8, " "))
+        self.summaryFile.write(str(claim["DiagCode6"]).ljust(8, " "))
+        self.summaryFile.write(str(claim["DiagCode7"]).ljust(8, " "))
+        self.summaryFile.write(str(claim["DiagCode8"]).ljust(8, " "))
+        self.summaryFile.write(str(claim["DiagCode9"]).ljust(8, " "))
+        self.summaryFile.write(str(claim["DiagCode10"]).ljust(8, " "))
+        self.summaryFile.write(str(claim["DiagCode11"]).ljust(8, " "))
+        self.summaryFile.write(str(claim["DiagCode12"]).ljust(8, " "))
 
         self.summaryFile.write("\n\n")
 
         self.summaryFile.write("\t\t")
-        self.summaryFile.write(" ".ljust(6, " "))
+        # self.summaryFile.write(" ".ljust(6, " "))
         self.summaryFile.write("CPT".ljust(10, " "))
         self.summaryFile.write("Price".ljust(10, " "))
-        self.summaryFile.write("EMG".ljust(10, " "))
+        self.summaryFile.write("EMG".ljust(12, " "))
+        self.summaryFile.write("Frm Date Srv".ljust(15, " "))
+        self.summaryFile.write("To Date Srv".ljust(15, " "))
         self.summaryFile.write("\n")
         self.summaryFile.write("\t\t")
-        self.summaryFile.write("--------------------------------")
+        self.summaryFile.write("----------------------------------------------------------------------")
         self.summaryFile.write("\n")
 
         self.summaryFile.close()
@@ -315,7 +370,9 @@ class claimClass:
         self.summaryFile.write("\t\t")
         self.summaryFile.write(str(claim["CPT"]).ljust(10, " "))
         self.summaryFile.write(floatPrice.ljust(10, " "))
-        self.summaryFile.write(str(claim["EMG"]).ljust(10, " "))
+        self.summaryFile.write(str(claim["EMG"]).ljust(12, " "))
+        self.summaryFile.write(str(claim["FromDateOfService"]).ljust(15, " "))
+        self.summaryFile.write(str(claim["ToDateOfService"]).ljust(15, " "))
         self.summaryFile.write("\n")
         self.summaryFile.close()
 
@@ -438,6 +495,7 @@ class claimClass:
                 "ToDateOfService": self.rowData.ToDateOfService,
                 "CPT": self.rowData.CPT1,
                 "EMG": self.rowData.EMG,
+                "DiagCode": self.rowData.DiagCode,
                 "DiagPointer": "",
                 "Price": "",
                 "ReferringPhysicianID": self.rowData.ReferringPhysicianID,
@@ -552,9 +610,9 @@ class claimClass:
 
         # get price from CPT lookup and put in dict
         if CPTPrice["CPT"] != "00000":
-            cur.execute("SELECT rate2020 FROM fees WHERE hcpcs=?", (int(CPTPrice["CPT"]),))
+            cur.execute("SELECT price FROM comp WHERE hcpcs=?", (int(CPTPrice["CPT"]),))
             row = cur.fetchone()
-            CPTPrice["Price"] = (float(row[0]) * 3)  # multiply rate
+            CPTPrice["Price"] = float(row[0])  # multiply rate
 
         # close database
         if con:
@@ -585,12 +643,6 @@ class claimClass:
             else:
                 diagCodeList.append(self.getDiagCode(diag_claim["EMG"]))
                 diag_claim["DiagPointer"] = diagPointers[pointerIndex]
-
-
-
-
-
-
 
     def checkForLP2lab(self, claimList):
 
@@ -806,6 +858,7 @@ while (dataRow.dataRowExists()) == True:
     claim.doClientClaimList()
 
 claim.writeClaimsToFile()
+claim.parseSummary()
 
 print("\n\n")
 print(lines)
