@@ -585,6 +585,7 @@ class claimClass:
         else:
             print("NO ENTRY FOR CODE: " + EMGcode)
 
+
     def queryCode(self, EMGcode):
 
         CPTPrice = {
