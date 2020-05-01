@@ -13,7 +13,6 @@ lines = "--------------------------------------------------------------------"
 summaryPath = "summary"
 outputPath = "output"
 inputPath = "input/"
-
 dataFile = "claims1.csv"
 
 # desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
@@ -578,7 +577,7 @@ class claimClass:
 
         cur.execute("SELECT diag FROM codes WHERE code=?", (EMGcode,))
         row = cur.fetchone()
-
+SELECT
         if row != None:
             return row[0]
 
