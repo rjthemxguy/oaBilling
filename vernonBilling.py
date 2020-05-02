@@ -102,7 +102,7 @@ class dataRowClass:
                     writer.writerow(row)
 
         # Open dataset csv
-        self.dataset = pd.read_csv("scratch/cleanedSuite.csv", header=None)
+        self.dataset = pd.read_csv("scratch/goodclaims.csv", header=None)
 
         # Set row index to 0
         self.index = 0
@@ -222,7 +222,7 @@ class claimClass:
 
             summarydata = summarydata.replace('nan', '')
 
-        with open('summary/summaryFinal.csv', 'w') as file:
+        with open('summary/summaryFinal.txt', 'w') as file:
             file.write(summarydata)
 
     def openSummaryFileAppend(self):
