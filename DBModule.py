@@ -2,13 +2,28 @@
 import mysql.connector
 
 class database_class:
-    def __init__(self, hostname, username, password, databaseName)
+    def __init__(self, hostname, username, password, databaseName):
 
-        mydb = mysql.connector.connect(
+
+
+        self.mydb = mysql.connector.connect(
             host=hostname,
             user=username,
             passwd=password,
             database=databaseName
             )
 
-        mycursor = mydb.cursor()
+        self.mycursor = self.mydb.cursor(buffered=True)
+
+    def getCPT(self, emgCode):
+
+        self.code = emgCode
+
+        sql = "SELECT CPT FROM codes WHERE code=" + "'" + emgCode + "'"
+
+        self.mycursor.execute(sql)
+
+
+        self.myresult = self.mycursor.fetchone()
+
+        return self.myresult

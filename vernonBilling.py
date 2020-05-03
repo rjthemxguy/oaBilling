@@ -8,8 +8,11 @@ import numpy as np
 import sys
 import csv
 import mysql.connector
+import DBModule as db
 
 lines = "--------------------------------------------------------------------"
+
+database = db.database_class("rjrobinson.net", "rjrob_admin", "hapkido", "rjrob_vernonDB")
 
 summaryPath = "summary"
 outputPath = "output"
@@ -603,6 +606,8 @@ class claimClass:
         # get CPT from EMG lookup and put in dict
         cur.execute("SELECT CPT FROM codes WHERE code=?", (EMGcode,))
         row = cur.fetchone()
+
+        row = database.getCPT(EMGcode)
 
         if row != None:
             CPTPrice["CPT"] = row[0]
