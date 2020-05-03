@@ -7,6 +7,7 @@ import sqlite3 as lite
 import numpy as np
 import sys
 import csv
+import mysql.connector
 
 lines = "--------------------------------------------------------------------"
 
