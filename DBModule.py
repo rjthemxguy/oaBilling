@@ -22,8 +22,17 @@ class database_class:
         sql = "SELECT CPT FROM codes WHERE code=" + "'" + emgCode + "'"
 
         self.mycursor.execute(sql)
+        self.myresult = self.mycursor.fetchone()
+
+        return self.myresult
+
+    def getPrice(self, CPT):
 
 
+
+        sql = "SELECT price FROM comp WHERE hcpcs=" + "'" + CPT + "'"
+
+        self.mycursor.execute(sql)
         self.myresult = self.mycursor.fetchone()
 
         return self.myresult

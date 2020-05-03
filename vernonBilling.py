@@ -248,7 +248,7 @@ class claimClass:
         self.summaryFile.write("PaitLast".ljust(15, " "))
         self.summaryFile.write("PaitFirst".ljust(15, " "))
         self.summaryFile.write("DOB".ljust(15, " "))
-        self.summaryFile.write("M/F".ljust(8," "))
+        self.summaryFile.write("M/F".ljust(8, " "))
         self.summaryFile.write("Refer Phy".ljust(30, " "))
         self.summaryFile.write("Refer Phy NPI".ljust(20, " "))
         self.summaryFile.write("Insurance".ljust(30, " "))
@@ -289,12 +289,12 @@ class claimClass:
         insurance = claim["InsurancePlanName"]
         self.summaryFile.write(insurance.ljust(30, " "))
         self.summaryFile.write("\n")
-        self.summaryFile.write(" ".ljust(28," ") + str(claim["PatientStreetAddress"].ljust(25," ")))
-        self.summaryFile.write(" ".ljust(79," ") + str(claim["InsuranceStreetAddr"]))
+        self.summaryFile.write(" ".ljust(28, " ") + str(claim["PatientStreetAddress"].ljust(25, " ")))
+        self.summaryFile.write(" ".ljust(79, " ") + str(claim["InsuranceStreetAddr"]))
         self.summaryFile.write("\n")
-        self.summaryFile.write(" ".ljust(28, " ") + str(claim["PatientCity"].ljust(16," ")))
-        self.summaryFile.write(" " + str(claim["PatientState"].ljust(8," ")))
-        self.summaryFile.write(" " + str(claim["PatientZip"])[0:5].ljust(12," "))
+        self.summaryFile.write(" ".ljust(28, " ") + str(claim["PatientCity"].ljust(16, " ")))
+        self.summaryFile.write(" " + str(claim["PatientState"].ljust(8, " ")))
+        self.summaryFile.write(" " + str(claim["PatientZip"])[0:5].ljust(12, " "))
         self.summaryFile.write(" ".ljust(66, " ") + str(claim["InsuranceCity"]))
         self.summaryFile.write(" " + str(claim["InsuranceState"]))
         self.summaryFile.write(" " + str(claim["InsuranceZip"])[0:5])
@@ -589,7 +589,6 @@ class claimClass:
         else:
             print("NO ENTRY FOR CODE: " + EMGcode)
 
-
     def queryCode(self, EMGcode):
 
         CPTPrice = {
@@ -597,19 +596,9 @@ class claimClass:
             "Price": 0
         }
 
-        # open database
-        con = None
-        con = lite.connect('db/vernon.db')
-        cur = con.cursor()
-
-        # print("EMG Value" + EMGcode)
-        # get CPT from EMG lookup and put in dict
-        cur.execute("SELECT CPT FROM codes WHERE code=?", (EMGcode,))
-        row = cur.fetchone()
-
         row = database.getCPT(EMGcode)
 
-        if row != None:
+        if row is not None:
             CPTPrice["CPT"] = row[0]
         else:
             CPTPrice["CPT"] = "00000"
@@ -617,15 +606,13 @@ class claimClass:
 
         # get price from CPT lookup and put in dict
         if CPTPrice["CPT"] != "00000":
-            cur.execute("SELECT price FROM comp WHERE hcpcs=?", (int(CPTPrice["CPT"]),))
-            row = cur.fetchone()
-            CPTPrice["Price"] = float(row[0])  # multiply rate
+            row = database.getPrice(CPTPrice["CPT"])
 
-        # close database
-        if con:
-            con.close()
+            CPTPrice["Price"] = float(row[0])
 
         return CPTPrice
+
+
 
     def getTableData(self, claimList):
 
